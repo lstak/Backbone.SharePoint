@@ -32,18 +32,20 @@ You can place your html file containing your app on the server file system or in
 index.html:
  
 ```html
+
 <!doctype html>
 <html>
-
+   ....
 <script type="text/javascript" src="jquery.js"></script> 
 <!-- you can also use zepto.js -->
 
 <script type="text/javascript" src="underscore.js"></script>
 <script type="text/javascript" src="backbone.js"></script>
 <script type="text/javascript" src="backbone-sharepoint.js"></script>
-
+  ...
 
 </html>
+
 ```
 
 ## <a name="examples"/>Examples
@@ -53,7 +55,7 @@ created a Contacts list based on the standard contacts list.
 
 ```js
 
-// You define the Contact Item by extending Backbone.SP.Item
+// You define a Contact Model for items by extending Backbone.SP.Item
 // Required parameters are the SharePoint site and the name of the list
 
 var Contact = Backbone.SP.Item.extend({
@@ -63,6 +65,7 @@ var Contact = Backbone.SP.Item.extend({
 
 
 // Create a new contact, the attributes refer to item column names.
+// Please note capitals. We follow SharePoint columnnames
 var contact = new Contact({ LastName: "Davis" });
 
 
