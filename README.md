@@ -29,11 +29,12 @@ Because of the Same Origin Policy, your html file must served from the same doma
 You can place your html file containing your app on the server file system or in an asset library.  
 
 
-index.html: 
+index.html:
+ 
 ```html
 <!doctype html>
 <html>
-...
+
 <script type="text/javascript" src="jquery.js"></script> 
 <!-- you can also use zepto.js -->
 
