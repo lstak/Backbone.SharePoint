@@ -1,1 +1,6 @@
-﻿README file for Backbone.SharePoint
+﻿Backbone.SharePoint
+===================
+
+
+Getting started
+---------------
