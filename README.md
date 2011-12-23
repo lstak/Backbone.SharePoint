@@ -6,22 +6,22 @@ It is a wrapper around the SharePoint ListData.svc REST service which is based o
 
 
 Backbone.SharePoint features:
-- create, read, update and delete SharePoint items as Backbone models
-- fetch multiple SharePoint items from a list as a Backbone collection
-- support for OData query string options ($orderby, $filter, $select, etc)
-- JSON payloads
-- custom sync() to communicate with the ListData service
-- partial updates: only changed attributes are sent to the server during an update.
+* create, read, update and delete SharePoint items as Backbone models
+* fetch multiple SharePoint items from a list as a Backbone collection
+* support for OData query string options ($orderby, $filter, $select, etc)
+* JSON payloads
+* custom sync() to communicate with the ListData service
+* partial updates: only changed attributes are sent to the server during an update.
 
 
 
 Contents
 --------
-- [Getting started](#installation)
-- [Backbone.SP.Item](#Item)
-- [Backbone.SP.List](#List)
-- [Examples](#examples)
-- [Tests](#tests)
+* [Getting started](#installation)
+* [Backbone.SP.Item](#Item)
+* [Backbone.SP.List](#List)
+* [Examples](#examples)
+* [Tests](#tests)
 
 Getting started
 ---------------
