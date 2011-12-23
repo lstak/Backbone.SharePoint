@@ -19,8 +19,6 @@ Backbone.SharePoint features:
 Contents
 --------
 * [Getting started](#installation)
-* [Backbone.SP.Item](#Item)
-* [Backbone.SP.List](#List)
 * [Examples](#examples)
 * [Tests](#tests)
 
@@ -60,7 +58,7 @@ created a Contacts list based on the standard contacts list.
 // Required parameters are the SharePoint site and the name of the list
 
 var Contact = Backbone.SP.Item.extend({
-	site: '/teamsite'
+	site: '/teamsite',
 	list: 'Contacts'
 })
 
@@ -74,19 +72,67 @@ var contact = new Contact({ LastName: "Davis" });
 // so let's save it to the server.
 contact.save();
 
+  ....
+
 // Update the attributes of the Item:
 contact.set({FirstName: "John"});
 contact.save(); 
+
+  ...
+
 
 // Finaly, to remove an item:
 contact.destroy();
 
 
+```
+
+Working with SharePoint lists is similar to collections.
+
+
+```javascript
+
+// you can define a SP List by refering to the model 
+var Contacts = Backbone.SP.List.extend({
+	model: Contact
+})
+
+
+// create a list
+var contacts = new Contacts;
+
+
+// get contacts list from the server
+contacts.fetch()
+
+
+// the fetch options allow you to use query options
+// for example, the request below will fetch only the LastName and FirstName columns
+// for item 11..15 when ordered descending by LastName
+contacts.fetch({
+	select: 'LastName, FirstName',
+	orderby: 'LastName desc',
+	top: 5,
+	skip:10
+})
+
+
+
+   ....
+
+
+// This is how you can create a new contact, save it to the server and add it to the list (collection)
+contacts.create({
+	LastName: "Peel",
+	FirstName: "Emma"
+})
 
 
 
 ```
 
+Hopefully this is sufficient to get you going!
+
+
 ## <a name="tests"/>Tests
------
-The 'test' directory contains a unit test suite based on QUnit. Open test.html in browser to run the tests.
+The 'test' directory contains a unit tests based on QUnit. Open test.html in browser to run the tests.
