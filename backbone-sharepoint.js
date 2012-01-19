@@ -132,11 +132,19 @@
 
       var success = params.success;
       params.success = function (resp, status, xhr) {
-        // first proecess the response ...
-        if (success) success(resp, status, xhr);
-        // ..then empty the _changeSet
-        model._changeSet = {};
-
+          // first process the response ...
+           if (success) {
+               // OData responds with an updated Etag
+               var etag = xhr.getResponseHeader('Etag');
+               success(resp, status, xhr);
+               if (etag) {
+                   // Backbone doesn't support setting/getting nested attributes
+                   // Updating etag attribute directly instead
+                   model.attributes.__metadata.etag = etag;
+               }
+           }
+           // ..then empty the _changeSet
+           model._changeSet = {};
       };
 
       // Make the request.
