@@ -128,7 +128,7 @@
       }
 
       // create a success handler to: 
-      // - clear the _changeSet after successful sync with server
+      // clear the _changeSet after successful sync with server
 
       var success = params.success;
       params.success = function (resp, status, xhr) {

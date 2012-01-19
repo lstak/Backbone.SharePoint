@@ -9,7 +9,8 @@ $(document).ready(function () {
       Contact,
       Contacts,
       contacts,
-      lastrequest;
+      lastrequest,
+      xhr, xhrWithoutEtag;
 
 
   module("Backbone.SharePoint", {
@@ -29,6 +30,23 @@ $(document).ready(function () {
       });
       contacts = new Contacts;
 
+      xhr = {
+        getResponseHeader: function (headerName) {
+          if (headerName == 'Etag') return "W-updated"
+
+          return "Unknown"
+
+        }
+      };
+
+      xhrWithoutEtag = {
+        getResponseHeader: function (headerName) {
+          if (headerName == 'Etag') return null
+
+          return "Unknown"
+
+        }
+      };
 
       $.ajax = function (obj) {
         lastRequest = obj;
@@ -146,9 +164,11 @@ $(document).ready(function () {
       }
     };
 
+
+
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
 
     var contact = new Contact(attrs);
@@ -193,7 +213,7 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
 
     ok(contact.isNew());
@@ -253,11 +273,16 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
 
     var contact = new Contact(attrs);
+    ok(contact.isNew());
+
+    // first save
     contact.save();
+    // saving new record, there should be no headers
+    equal(lastRequest.headers, undefined);
 
     ok(!contact.isNew());
 
@@ -270,9 +295,14 @@ $(document).ready(function () {
     contact.save();
     deepEqual(contact.attributes, _.extend(attrs, response.d, update))
 
+
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts(12)');
     equal(lastRequest.type, 'MERGE');
     equal(lastRequest.dataType, 'json');
+
+    // the last request should have the an etag
+    equal(lastRequest.headers["If-Match"], 'W-updated');
+
 
     // request data should only contain changed attributes
     var data = JSON.parse(lastRequest.data);
@@ -282,11 +312,16 @@ $(document).ready(function () {
       JobTitle: 'Writer2',
       Telephone: '+1-800-123495'
     };
+
+    contact.attributes.__metadata.etag = "W"
     contact.save(update2);
     deepEqual(contact.attributes, _.extend(attrs, response.d, update, update2))
     var data = JSON.parse(lastRequest.data);
     deepEqual(data, update2);
-    equal(lastRequest.headers["If-Match"], 'W8');
+
+    // is contact model metadata etag properly updated? 
+    equal(contact.attributes.__metadata.etag, 'W-updated');
+
 
   });
 
@@ -307,7 +342,7 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
 
     contact.fetch();
@@ -348,8 +383,9 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
+
 
     contact.fetch();
 
@@ -374,15 +410,19 @@ $(document).ready(function () {
 
     var contact = new Contact({ Id: 12 });
 
-    var response = {
-      d: {
-
+    var metadata = {
+      __metadata: {
+        etag: 'W8'
       }
+    };
+
+    var response = {
+      d: metadata
     };
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response)
+      obj.success(response, status, xhr)
     };
 
     contact.fetch();
@@ -396,7 +436,7 @@ $(document).ready(function () {
     contact.clear();
     contact.save();
 
-    deepEqual(contact.attributes, {});
+    deepEqual(contact.attributes, metadata);
     var data = JSON.parse(lastRequest.data);
     deepEqual(data, {});
 
@@ -404,6 +444,24 @@ $(document).ready(function () {
 
 
   test("List: fetch()", function () {
+
+    var response = {
+      d: {
+        results :[{
+          Id: 12,
+          CreatedBy: 'John Doe',
+          __metadata: {
+            etag: 'W8'
+          }
+        }]
+      }
+    };
+
+    $.ajax = function (obj) {
+      lastRequest = obj;
+      obj.success(response, status, xhrWithoutEtag)
+    };
+
     contacts.fetch();
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts');
     equal(lastRequest.type, 'GET');
