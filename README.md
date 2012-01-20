@@ -4,7 +4,6 @@
 Backbone.SharePoint extends Backbone Models and Collections so you can easily work with SharePoint Items and Lists.
 Its custom sync() method is a wrapper around the SharePoint ListData.svc REST service which is based on [OData](http://www.odata.org). 
 
-
 Backbone.SharePoint features:
 
 * create, read, update and delete SharePoint items as Backbone models
@@ -16,16 +15,22 @@ Backbone.SharePoint features:
 * lightweight
 
 
+NEW: I am extending Backbone.SharePoint to also support the use of SharePoint Web Services.
+Experimental support for fetching Backbone Collections through Lists.asmx is now available in 
+file backbone-sharepoint.soap.js
+
+
 
 Contents
 --------
-* [Getting started](#installation)
+* [Getting started - OData](#gettingstarted_odata)
 * [Examples](#examples)
 * [Tests](#tests)
+* [Getting started - Soap](#gettingstarted_soap)
 
 
-Getting started
----------------
+## <a name="gettingstarted_odata"/>Getting started with OData service
+
 Because of the Same Origin Policy, your html file must served from the same domain as the SharePoint site you want to access. 
 You can place your html file containing your app on the server file system or in an asset library.  
 
@@ -43,7 +48,7 @@ index.html:
 
 <script src="underscore.js"></script>
 <script src="backbone.js"></script>
-<script src="backbone-sharepoint.js"></script>
+<script src="backbone-sharepoint.odata.js"></script>
   ...
 
 </html>
@@ -142,3 +147,59 @@ Hopefully this is sufficient to get you going!
 The 'test' directory contains a unit tests based on QUnit. Open test.html in browser to run the tests.
 
 
+## <a name="gettingstarted_odata"/>NewL Getting started with SOAP service
+
+Instead of the odata file, include the backbone-sharepoint soap version:
+
+ 
+```html
+
+
+<!doctype html>
+<html>
+   ....
+<script src="jquery.js"></script> 
+<!-- you can also use zepto.js -->
+
+<script src="underscore.js"></script>
+<script src="backbone.js"></script>
+<script src="backbone-sharepoint.soap.js"></script>
+<script>
+var Contact = Backbone.SP.Item.extend({
+})
+
+
+var Contacts = Backbone.SP.List.extend({
+    model: Contact,
+    site: '/teamsite',
+    list: 'Contacts',
+    view: ''  //  default view, you can also provide viewId: '{GUID}'
+})
+
+
+var ContactsView = Backbone.View.extend({
+
+    tagName: "ul",
+
+    tpl: _.template("<% _.each(contacts, function(contact) { %> <li><%= contact.Title + ', ' + contact.FirstName %></li> <% }); %>"),
+
+    render: function () {
+        
+        $(this.el).html(this.tpl({ contacts: this.collection.toJSON() }));
+        $('body').append(this.el);
+    }
+
+});
+
+
+$(function () {
+    var contacts = new Contacts;
+    var view = new ContactsView({ collection: contacts });
+    contacts.bind("reset", view.render, view);
+    contacts.fetch()
+})
+</script>
+
+</html>
+
+```
