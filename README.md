@@ -147,7 +147,7 @@ Hopefully this is sufficient to get you going!
 The 'test' directory contains a unit tests based on QUnit. Open test.html in browser to run the tests.
 
 
-## <a name="gettingstarted_odata"/>NewL Getting started with SOAP service
+## <a name="gettingstarted_soap"/>New: Getting started with SOAP service
 
 Instead of the odata file, include the backbone-sharepoint soap version:
 
@@ -157,7 +157,7 @@ Instead of the odata file, include the backbone-sharepoint soap version:
 
 <!doctype html>
 <html>
-   ....
+<head>
 <script src="jquery.js"></script> 
 <!-- you can also use zepto.js -->
 
@@ -178,17 +178,12 @@ var Contacts = Backbone.SP.List.extend({
 
 
 var ContactsView = Backbone.View.extend({
-
     tagName: "ul",
-
     tpl: _.template("<% _.each(contacts, function(contact) { %> <li><%= contact.Title + ', ' + contact.FirstName %></li> <% }); %>"),
-
     render: function () {
-        
         $(this.el).html(this.tpl({ contacts: this.collection.toJSON() }));
         $('body').append(this.el);
     }
-
 });
 
 
@@ -199,7 +194,9 @@ $(function () {
     contacts.fetch()
 })
 </script>
-
+</head>
+<body>
+</body>
 </html>
 
 ```
