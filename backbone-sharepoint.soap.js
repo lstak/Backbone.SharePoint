@@ -1,5 +1,15 @@
-﻿
-(function (Backbone, _, $) {
+
+(function(global, init) {
+  if (typeof define === 'function' && define.amd) {
+    define(['underscore', 'jquery', 'backbone'], function(_, $, Backbone) {
+      return init(Backbone, _, $); // requirejs (AMD)
+    });
+  } else if (typeof Backbone === 'undefined') {
+    return init(require('backbone'), require('underscore'), require('underscore')); // CommonJS
+  } else
+    return init(global.Backbone, global._, global.$); // try global context
+}(this, function(Backbone, _, $) {
+
 
     // SharePoint ListData service
     var LIST_SERVICE = '_vti_bin/Lists.asmx',
@@ -164,6 +174,8 @@
 
     });
 
+    return Backbone;
 
-} (Backbone, _, $));
+
+}));
 
