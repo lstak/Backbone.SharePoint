@@ -5,7 +5,7 @@
       return init(Backbone, _, $); // requirejs (AMD)
     });
   } else if (typeof Backbone === 'undefined') {
-    return init(require('backbone'), require('underscore'), require('underscore')); // CommonJS
+    return init(require('backbone'), require('underscore'), require('jquery')); // CommonJS
   } else
     return init(global.Backbone, global._, global.$); // try global context
 }(this, function(Backbone, _, $) {
