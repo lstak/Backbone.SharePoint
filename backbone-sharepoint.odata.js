@@ -1,4 +1,4 @@
-﻿
+
 (function (Backbone, _, $) {
 
     // SharePoint ListData service
@@ -132,6 +132,10 @@
                         }
                     });
 
+                // fix for escaped apostrophes in the listdata.svc response body
+                params.dataFilter = function(data, type){
+                    return data.replace(/\\'/g, "'");
+                };
             }
 
             // create a success handler to: 
