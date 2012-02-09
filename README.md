@@ -180,9 +180,9 @@ var Contacts = Backbone.SP.List.extend({
 var ContactsView = Backbone.View.extend({
     tagName: "ul",
     tpl: _.template(
-		'<% _.each(contacts, function(contact) { %>' +
-			'<li><%= contact.Title + ', ' + contact.FirstName %></li>' +
-		'<% }); %>'
+		"<% _.each(contacts, function(contact) { %>" +
+			"<li><%= contact.Title + ', ' + contact.FirstName %></li>" +
+		"<% }); %>"
 	),
     render: function () {
         $(this.el).html(this.tpl({ contacts: this.collection.toJSON() }));
