@@ -1,4 +1,15 @@
-﻿
+﻿/******************************************************************
+*  Backbone.SharePoint OData proxy 
+* 
+*  Author: Luc Stakenborg
+*  Date: Mar 2, 2012
+* 
+*  Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php 
+*  Copyright (c) 2012, Luc Stakenborg, Oxida B.V.
+******************************************************************
+*/
+
+
 (function (Backbone, _, $) {
 
     // SharePoint ListData service
@@ -11,7 +22,7 @@
             list = options.list,
             id = options.id,
 
-        // remove leading and trailing forward slashes from the site path
+            // remove leading and trailing forward slashes from the site path
             path = site.replace(/^\/+|\/+$/g, ''),
             url = (path ? '/' + path : '') + '/' + LISTDATA_SERVICE + '/' + list +
                     (id ? '(' + encodeURIComponent(id) + ')' : '');
@@ -37,10 +48,6 @@
 
         _updateChangeSet: function () {
             _.extend(this._changeSet, this.changedAttributes());
-        },
-
-        parse: function (response) {
-            return (response ? response.d : null);
         },
 
         url: function () {
@@ -88,7 +95,7 @@
                 type = methodMap[method],
 
 
-            // Default JSON-request options.
+                // Default JSON-request options.
                 params = _.extend({
                     type: type,
                     dataType: 'json',
@@ -134,16 +141,21 @@
 
             }
 
-            // create a success handler to: 
-            // clear the _changeSet after successful sync with server
 
-
+            // Create a success handler to: 
+            // (1) clear the _changeSet after successful sync with server
+            // (2) set etag
+            // (3) normalize the response, so a model.fetch() does not require a parse()
             params.success = function (resp, status, xhr) {
                 // first process the response ...
                 if (success) {
                     // OData responds with an updated Etag
                     var etag = xhr.getResponseHeader('Etag');
-                    success(resp, status, xhr);
+
+                    // Instead of passing resp, we'll pass resp.d
+                    // This way we don't need to override the model.parse() method
+                    success(resp.d, status, xhr);
+
                     if (etag) {
                         // Backbone doesn't support setting/getting nested attributes
                         // Updating etag attribute directly instead
@@ -177,13 +189,13 @@
 
         parse: function (response) {
 
-            if (response.d.__count) {
-                this._count = parseInt(response.d.__count, 10);
+            if (response.__count) {
+                this._count = parseInt(response.__count, 10);
             } else {
                 delete this._count;
             }
 
-            return response.d.results;
+            return response.results;
         }
 
 
@@ -191,5 +203,5 @@
     });
 
 
-}(Backbone, _, $));
+} (Backbone, _, $));
 
