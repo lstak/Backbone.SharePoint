@@ -39,10 +39,6 @@
             _.extend(this._changeSet, this.changedAttributes());
         },
 
-        parse: function (response) {
-            return (response ? response.d : null);
-        },
-
         url: function () {
 
             var options = {
