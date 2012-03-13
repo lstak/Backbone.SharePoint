@@ -1,4 +1,4 @@
-﻿/******************************************************************
+/******************************************************************
 *  Backbone.SharePoint OData proxy 
 * 
 *  Author: Luc Stakenborg
@@ -87,8 +87,8 @@
             var metadata = model.get("__metadata"),
                 methodMap = {
                     'create': 'POST',
-                    'update': 'MERGE',  // OData requires MERGE for partial updates
-                    'delete': 'DELETE',
+                    'update': 'POST',  // OData requires MERGE for partial updates and DELETE
+                    'delete': 'POST', // Tunneling through POST to support older browser like e.g. IE7/IE8
                     'read': 'GET'
                 },
 
@@ -115,6 +115,13 @@
 
                 if (method === 'create') {
                     params.data = JSON.stringify(model.toJSON());
+                }
+
+                // See http://www.odata.org/developers/protocols/operations#MethodTunnelingthroughPOST 3.2
+                if (method === 'delete' || method === 'update') {
+                    params.headers = {
+                        'X-HTTP-Method' : method
+                    };
                 }
 
                 if (method === 'update') {
