@@ -118,16 +118,17 @@
                 }
 
                 // See http://www.odata.org/developers/protocols/operations#MethodTunnelingthroughPOST 3.2
-                if (method === 'delete' || method === 'update') {
+                if ( method === 'delete' ) {
                     params.headers = {
-                        'X-HTTP-Method' : method
+                        'X-HTTP-Method' : 'DELETE'
                     };
                 }
 
                 if (method === 'update') {
                     params.data = JSON.stringify(model._changeSet || {});
                     params.headers = {
-                        'If-Match': metadata ? metadata.etag : '*'
+                        'If-Match': metadata ? metadata.etag : '*',
+                        'X-HTTP-Method' : 'MERGE'
                     };
                 }
 
