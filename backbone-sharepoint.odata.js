@@ -22,7 +22,7 @@
             list = options.list,
             id = options.id,
 
-            // remove leading and trailing forward slashes from the site path
+        // remove leading and trailing forward slashes from the site path
             path = site.replace(/^\/+|\/+$/g, ''),
             url = (path ? '/' + path : '') + '/' + LISTDATA_SERVICE + '/' + list +
                     (id ? '(' + encodeURIComponent(id) + ')' : '');
@@ -47,7 +47,15 @@
         },
 
         _updateChangeSet: function () {
-            _.extend(this._changeSet, this.changedAttributes());
+            var changedAttributes = this.changedAttributes();
+
+            // if attributes are set due to server response, the response will contain __metadata
+            if (changedAttributes.__metadata) {
+                this._changeSet = {}
+            } else {
+                _.extend(this._changeSet, this.changedAttributes());
+            }
+
         },
 
         url: function () {
@@ -87,7 +95,12 @@
             var metadata = model.get("__metadata"),
                 methodMap = {
                     'create': 'POST',
-                    'update': 'MERGE',  // OData requires MERGE for partial updates
+
+                    // OData requires MERGE for partial updates
+                    // We will use Method tunneling throug POST because
+                    // MERGE isn't supported by IE7 + IE8
+                    'update': 'POST',
+
                     'delete': 'DELETE',
                     'read': 'GET'
                 },
@@ -95,7 +108,7 @@
                 type = methodMap[method],
 
 
-                // Default JSON-request options.
+            // Default JSON-request options.
                 params = _.extend({
                     type: type,
                     dataType: 'json',
@@ -120,6 +133,10 @@
                 if (method === 'update') {
                     params.data = JSON.stringify(model._changeSet || {});
                     params.headers = {
+                        // header required for Method tunneling
+                        'X-HTTP-Method': 'MERGE',
+
+                        // header required for concurrency control
                         'If-Match': metadata ? metadata.etag : '*'
                     };
                 }
@@ -143,27 +160,28 @@
 
 
             // Create a success handler to: 
-            // (1) clear the _changeSet after successful sync with server
-            // (2) set etag
-            // (3) normalize the response, so a model.fetch() does not require a parse()
+            // (1) set etag
+            // (2) normalize the response, so a model.fetch() does not require a parse()
             params.success = function (resp, status, xhr) {
-                // first process the response ...
-                if (success) {
-                    // OData responds with an updated Etag
-                    var etag = xhr.getResponseHeader('Etag');
 
-                    // Instead of passing resp, we'll pass resp.d
-                    // This way we don't need to override the model.parse() method
-                    success(resp.d, status, xhr);
+                // OData responds with an updated Etag
+                var etag = xhr.getResponseHeader('Etag');
 
-                    if (etag) {
-                        // Backbone doesn't support setting/getting nested attributes
-                        // Updating etag attribute directly instead
-                        model.attributes.__metadata.etag = etag;
-                    }
-                }
-                // ..then empty the _changeSet
+                // always clear changeSet after a server response
                 model._changeSet = {};
+
+                // Instead of passing resp, we'll pass resp.d
+                // make sure we cover 204 response (resp is empty) on Delete and Update
+                // This way we don't need to override the model.parse() method
+                success(resp && resp.d, status, xhr);
+
+                if (etag) {
+                    // Backbone doesn't support setting/getting nested attributes
+                    // Updating etag attribute directly instead
+                    model.attributes.__metadata.etag = etag;
+                }
+              
+
             };
 
             // Make the request.

@@ -297,8 +297,12 @@ $(document).ready(function () {
 
 
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts(12)');
-    equal(lastRequest.type, 'MERGE');
+    
     equal(lastRequest.dataType, 'json');
+
+    // test Method tunneling
+    equal(lastRequest.type, 'POST');
+    equal(lastRequest.headers["X-HTTP-Method"], 'MERGE');
 
     // the last request should have the an etag
     equal(lastRequest.headers["If-Match"], 'W-updated');
