@@ -1,4 +1,4 @@
-﻿/******************************************************************
+/******************************************************************
 *  Backbone.SharePoint OData proxy 
 * 
 *  Author: Luc Stakenborg
@@ -91,7 +91,7 @@
 
 
 
-        sync: function (method, model, options) {
+        sync: function (method, model, options, collection) {
             var metadata = model.get("__metadata"),
                 methodMap = {
                     'create': 'POST',
@@ -162,10 +162,12 @@
             // Create a success handler to: 
             // (1) set etag
             // (2) normalize the response, so a model.fetch() does not require a parse()
-            params.success = function (resp, status, xhr) {
+
+            // params.success = function (resp, status, xhr) {
+            params.success = function (model, resp, options) {
 
                 // OData responds with an updated Etag
-                var etag = xhr.getResponseHeader('Etag');
+                var etag = options.getResponseHeader('Etag');
 
                 // always clear changeSet after a server response
                 model._changeSet = {};
@@ -173,7 +175,7 @@
                 // Instead of passing resp, we'll pass resp.d
                 // make sure we cover 204 response (resp is empty) on Delete and Update
                 // This way we don't need to override the model.parse() method
-                success(resp && resp.d, status, xhr);
+                success(collection, model && model.d.results, options);
 
                 if (etag) {
                     // Backbone doesn't support setting/getting nested attributes
@@ -202,7 +204,7 @@
         },
 
         sync: function (method, model, options) {
-            return this.model.prototype.sync(method, model, options);
+            return this.model.prototype.sync(method, model, options, this);
         },
 
         parse: function (response) {
@@ -219,7 +221,6 @@
 
 
     });
-
 
 } (Backbone, _, $));
 
