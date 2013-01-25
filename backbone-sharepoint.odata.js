@@ -1,4 +1,4 @@
-﻿/******************************************************************
+/******************************************************************
 *  Backbone.SharePoint OData proxy 
 * 
 *  Author: Luc Stakenborg
@@ -89,8 +89,6 @@
             return result;
         },
 
-
-
         sync: function (method, model, options) {
             var metadata = model.get("__metadata"),
                 methodMap = {
@@ -106,7 +104,6 @@
                 },
 
                 type = methodMap[method],
-
 
             // Default JSON-request options.
                 params = _.extend({
@@ -158,10 +155,16 @@
 
             }
 
+            // Success callbacks changed with Backbone v0.9.9
+            var bbVer = Backbone.VERSION.split('.');
+            var oldSuccessFormat = (parseInt(bbVer[0], 10) === 0 &&
+                                    parseInt(bbVer[1], 10) === 9 &&
+                                    parseInt(bbVer[2], 10) <= 9);
 
             // Create a success handler to: 
             // (1) set etag
             // (2) normalize the response, so a model.fetch() does not require a parse()
+
             params.success = function (resp, status, xhr) {
 
                 // OData responds with an updated Etag
@@ -173,7 +176,13 @@
                 // Instead of passing resp, we'll pass resp.d
                 // make sure we cover 204 response (resp is empty) on Delete and Update
                 // This way we don't need to override the model.parse() method
-                success(resp && resp.d, status, xhr);
+                if (success) {
+                    if (oldSuccessFormat) {
+                        success(resp && resp.d, status, xhr);
+                    } else {
+                        success(model, resp && resp.d, options);
+                    }
+                }
 
                 if (etag) {
                     // Backbone doesn't support setting/getting nested attributes
@@ -181,7 +190,6 @@
                     model.attributes.__metadata.etag = etag;
                 }
               
-
             };
 
             // Make the request.
@@ -220,6 +228,4 @@
 
     });
 
-
 } (Backbone, _, $));
-
