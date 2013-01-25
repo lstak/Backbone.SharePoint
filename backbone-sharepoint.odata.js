@@ -168,7 +168,7 @@
             params.success = function (resp, status, xhr) {
 
                 // OData responds with an updated Etag
-                var etag = options.getResponseHeader('Etag');
+                var etag = xhr.getResponseHeader('Etag');
 
                 // always clear changeSet after a server response
                 model._changeSet = {};
