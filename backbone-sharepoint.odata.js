@@ -110,9 +110,7 @@
                     type: type,
                     dataType: 'json',
                     processData: (type === 'GET')
-                }, options),
-
-                success = params.success;
+                }, options);
 
             // Ensure that we have a URL.
             if (!params.url) {
@@ -152,7 +150,6 @@
                             params.data['$' + keyword] = options[keyword];
                         }
                     });
-
             }
 
             // Success callbacks changed with Backbone v0.9.9
@@ -164,12 +161,12 @@
             // Create a success handler to: 
             // (1) set etag
             // (2) normalize the response, so a model.fetch() does not require a parse()
-
+            var success = options.success;
             params.success = function (resp, status, xhr) {
 
                 // OData responds with an updated Etag
                 var etag = xhr.getResponseHeader('Etag');
-
+              
                 // always clear changeSet after a server response
                 model._changeSet = {};
 
@@ -189,7 +186,18 @@
                     // Updating etag attribute directly instead
                     model.attributes.__metadata.etag = etag;
                 }
-              
+
+            };
+
+            var error = options.error;
+            params.error = function (xhr, status, errorText) {
+                if (error) {
+                    // Include the error text in xhr so it's available to the callback
+                    if (errorText) {
+                        xhr.errorText = errorText;
+                    }
+                    error(model, xhr, options);
+                }
             };
 
             // Make the request.
