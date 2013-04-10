@@ -168,14 +168,14 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response, status, xhr)
+      obj.success(response, status, xhr);
     };
 
     var contact = new Contact(attrs);
     deepEqual(contact.attributes, attrs);
     equal(contact.url(), '/teamsite/_vti_bin/ListData.svc/Contacts(12)');
 
-    contact.fetch({reset: true});
+    contact.fetch();
 
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts(12)');
     equal(lastRequest.type, 'GET');

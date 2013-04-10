@@ -168,7 +168,11 @@
                 // make sure we cover 204 response (resp is empty) on Delete and Update
                 // This way we don't need to override the model.parse() method
                 if (success) {
-                    success(resp && resp.d, status, xhr);
+                    if (Backbone.VERSION === '0.9.9' || Backbone.VERSION === '0.9.10') {
+                        success(model, resp && resp.d, options);
+                    } else {
+                        success(resp && resp.d, status, xhr);
+                    }
                 }
 
                 if (etag) {
