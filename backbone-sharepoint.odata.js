@@ -230,4 +230,4 @@
 
     });
 
-} (Backbone, _, $));
+} (Backbone, _, jQuery));
