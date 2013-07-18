@@ -168,7 +168,7 @@ $(document).ready(function () {
 
     $.ajax = function (obj) {
       lastRequest = obj;
-      obj.success(response, status, xhr)
+      obj.success(response, status, xhr);
     };
 
     var contact = new Contact(attrs);
@@ -297,7 +297,7 @@ $(document).ready(function () {
 
 
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts(12)');
-    
+
     equal(lastRequest.dataType, 'json');
 
     // test Method tunneling
@@ -323,7 +323,7 @@ $(document).ready(function () {
     var data = JSON.parse(lastRequest.data);
     deepEqual(data, update2);
 
-    // is contact model metadata etag properly updated? 
+    // is contact model metadata etag properly updated?
     equal(contact.attributes.__metadata.etag, 'W-updated');
 
 
@@ -474,7 +474,7 @@ $(document).ready(function () {
     ok(_.isEmpty(lastRequest.data));
 
 
-    // fetch with data 
+    // fetch with data
     contacts.fetch({ data: { a: 'a', one: 1} });
     equal(lastRequest.url, '/teamsite/_vti_bin/ListData.svc/Contacts');
     equal(lastRequest.data.a, 'a');

@@ -1,10 +1,10 @@
 /******************************************************************
-*  Backbone.SharePoint OData proxy 
-* 
+*  Backbone.SharePoint OData proxy
+*
 *  Author: Luc Stakenborg
 *  Date: Mar 2, 2012
-* 
-*  Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php 
+*
+*  Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 *  Copyright (c) 2012, Luc Stakenborg, Oxida B.V.
 ******************************************************************
 */
@@ -51,7 +51,7 @@
 
             // if attributes are set due to server response, the response will contain __metadata
             if (changedAttributes.__metadata) {
-                this._changeSet = {}
+                this._changeSet = {};
             } else {
                 _.extend(this._changeSet, this.changedAttributes());
             }
@@ -138,7 +138,7 @@
 
             }
 
-            // transfer special url parameters like select and 
+            // transfer special url parameters like select and
             // orderby to the params.data hash
             if (method === 'read') {
                 params.data = params.data || {};
@@ -152,13 +152,7 @@
                     });
             }
 
-            // Success callbacks changed with Backbone v0.9.9
-            var bbVer = Backbone.VERSION.split('.');
-            var oldSuccessFormat = (parseInt(bbVer[0], 10) === 0 &&
-                                    parseInt(bbVer[1], 10) === 9 &&
-                                    parseInt(bbVer[2], 10) <= 9);
-
-            // Create a success handler to: 
+            // Create a success handler to:
             // (1) set etag
             // (2) normalize the response, so a model.fetch() does not require a parse()
             var success = options.success;
@@ -166,7 +160,7 @@
 
                 // OData responds with an updated Etag
                 var etag = xhr.getResponseHeader('Etag');
-              
+
                 // always clear changeSet after a server response
                 model._changeSet = {};
 
@@ -174,10 +168,10 @@
                 // make sure we cover 204 response (resp is empty) on Delete and Update
                 // This way we don't need to override the model.parse() method
                 if (success) {
-                    if (oldSuccessFormat) {
-                        success(resp && resp.d, status, xhr);
-                    } else {
+                    if (Backbone.VERSION === '0.9.9' || Backbone.VERSION === '0.9.10') {
                         success(model, resp && resp.d, options);
+                    } else {
+                        success(resp && resp.d, status, xhr);
                     }
                 }
 
@@ -236,4 +230,4 @@
 
     });
 
-} (Backbone, _, $));
+} (Backbone, _, jQuery));
